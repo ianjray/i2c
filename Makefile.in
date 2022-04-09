@@ -1,0 +1,31 @@
+.POSIX:
+.SUFFIXES:
+.SUFFIXES: .cpp .uto .coverage
+
+CXX        = @CXX@
+CCOV       = gcov
+CFLAGS     = @CFLAGS@
+CFLAGS_COV = @CFLAGS_COV@
+CFLAGS_SAN = @CFLAGS_SAN@
+
+.PHONY: all
+all: test_i2c.coverage
+
+test_i2c.coverage: bus.cpp controllerbase.cpp line.cpp log.cpp node.cpp target.cpp targetbase.cpp
+
+.cpp.uto:
+	$(CXX) $(CFLAGS) $(CFLAGS_COV) $(CFLAGS_SAN) -c $^ -o $@
+
+.uto.coverage:
+	$(CXX) $(CFLAGS) $(CFLAGS_COV) $(CFLAGS_SAN) $^ -o $@
+	./$@
+	$(CCOV) $$(basename $< .uto).cpp
+	! grep "#####" $$(basename $< .uto).cpp.gcov
+
+.PHONY: clean
+clean:
+	rm -rf *.uto *.gc?? *.coverage
+
+.PHONY: distclean
+distclean: clean
+	rm -f Makefile config.status
