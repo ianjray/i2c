@@ -1,0 +1,7 @@
+test_compiler_flags "${CXX}" CFLAGS REQUIRED  -std=c++17 -Wno-c++98-compat
+
+test_compiler_flags "${CXX}" CFLAGS OPTIONAL -Wall -Wextra -Werror -O2
+
+test_compiler_flags "${CXX}" CFLAGS_SAN OPTIONAL -fsanitize=address
+
+populate "${SRCDIR}"

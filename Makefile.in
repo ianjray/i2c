@@ -1,0 +1,44 @@
+.POSIX:
+.SUFFIXES:
+.SUFFIXES: .cpp .o
+
+CXX        = @CXX@
+CFLAGS     = @CFLAGS@
+CFLAGS_SAN = @CFLAGS_SAN@
+
+.PHONY: all
+all: libi2c.a
+
+libi2c.a: i2cscheduler.o i2cbus.o i2cnode.o i2ccontroller.o i2ctarget.o referencetarget.o
+	$(LD) -r $^ -o $@
+
+.cpp.o:
+	$(CXX) $(CFLAGS) -I. -c $< -o $@
+
+test_scheduler: tests/test_scheduler.cpp libi2c.a
+	$(CXX) $(CFLAGS) $(CFLAGS_SAN) -I. $^ -o $@
+	./$@
+
+test_protocol: tests/test_protocol.cpp libi2c.a
+	$(CXX) $(CFLAGS) $(CFLAGS_SAN) -I. $^ -o $@
+	./$@
+
+test_i2c: tests/test_i2c.cpp libi2c.a
+	$(CXX) $(CFLAGS) $(CFLAGS_SAN) -I. $^ -o $@
+	./$@
+
+.PHONY: test
+test: test_scheduler
+test: test_protocol
+test: test_i2c
+
+.PHONY: clean
+clean:
+	rm -f *.o *.a
+	rm -f test_scheduler
+	rm -f test_protocol
+	rm -f test_i2c
+
+.PHONY: distclean
+distclean: clean
+	rm -f Makefile config.status
